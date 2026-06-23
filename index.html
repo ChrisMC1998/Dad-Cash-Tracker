@@ -6,9 +6,7 @@
     <title>Interactive Financial Dashboard - Personal & Professional</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -422,7 +420,7 @@
         .modal {
             display: none;
             position: fixed;
-            z-index: 1000;
+            z-index: 3000;
             left: 0;
             top: 0;
             width: 100%;
@@ -434,6 +432,47 @@
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
+        }
+
+        /* Full Page (Transactions) */
+        .full-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            z-index: 2000;
+            overflow-y: auto;
+            animation: fadeIn 0.25s;
+        }
+
+        .full-page.active {
+            display: block;
+        }
+
+        .full-page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 32px;
+            border-bottom: 2px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            background: var(--bg-primary);
+            z-index: 1;
+        }
+
+        .full-page-header h2 {
+            font-size: 22px;
+            color: var(--text-primary);
+        }
+
+        .full-page-body {
+            padding: 24px 32px 48px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
         .modal-content {
@@ -768,11 +807,14 @@
                     </select>
                 </div>
                 <div class="file-upload">
-                    <input type="file" id="importExcel" accept=".xlsx,.xls,.csv" onchange="handleFileImport(event)">
-                    <button class="btn btn-success" onclick="document.getElementById('importExcel').click()">
-                        📥 Import Data
+                    <input type="file" id="restoreBackup" accept=".json" onchange="handleRestoreBackup(event)">
+                    <button class="btn btn-secondary" onclick="document.getElementById('restoreBackup').click()">
+                        ♻️ Restore Backup
                     </button>
                 </div>
+                <button class="btn btn-success" onclick="downloadBackup()">
+                    💾 Backup Data
+                </button>
                 <button class="btn btn-secondary" onclick="exportToCSV()">
                     📊 Export CSV
                 </button>
@@ -782,6 +824,9 @@
                 <button class="btn btn-primary" onclick="openDataEntryModal()">
                     ➕ Add Entry
                 </button>
+                <button class="btn btn-secondary" onclick="openTransactionsPage()">
+                    📋 View Transactions
+                </button>
             </div>
         </div>
 
@@ -789,7 +834,7 @@
         <div class="filter-section">
             <div class="filter-header">
                 <h3>Filters & Controls</h3>
-                <button class="btn btn-secondary" onclick="resetFilters()">🔄 Reset All</button>
+                <button class="btn btn-secondary" onclick="resetAllData()">🔄 Reset All</button>
             </div>
             
             <div class="filter-grid">
@@ -1166,6 +1211,8 @@
                                 <option value="">Select Type</option>
                                 <option value="income">Income</option>
                                 <option value="expense">Expense</option>
+                                <option value="debt">Debt / Loan</option>
+                                <option value="emergency">Emergency Fund</option>
                             </select>
                         </div>
                     </div>
@@ -1175,6 +1222,12 @@
                             <label for="transactionCategory">Category *</label>
                             <select id="transactionCategory" required>
                                 <option value="">Select Category</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="transactionActionGroup" style="display: none;">
+                            <label for="transactionAction">Action *</label>
+                            <select id="transactionAction">
+                                <option value="">Select Action</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -1218,35 +1271,38 @@
         </div>
     </div>
 
-    <!-- View Transactions Modal -->
-    <div id="viewTransactionsModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>All Transactions</h2>
-                <span class="close" onclick="closeViewTransactionsModal()">&times;</span>
+    <!-- Transactions Full Page -->
+    <div id="transactionsPage" class="full-page">
+        <div class="full-page-header">
+            <h2>All Transactions</h2>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn btn-primary" onclick="openDataEntryModal()">➕ Add Entry</button>
+                <button class="btn btn-secondary" onclick="closeTransactionsPage()">← Back to Dashboard</button>
             </div>
-            <div class="modal-body">
-                <div class="data-table-container">
-                    <table class="data-table" id="transactionsTable">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Type</th>
-                                <th>Category</th>
-                                <th>Amount</th>
-                                <th>Account</th>
-                                <th>Finance Type</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="transactionsTableBody">
-                            <!-- Transactions will be populated here -->
-                        </tbody>
-                    </table>
-                </div>
+        </div>
+        <div class="full-page-body">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+                <div id="selectedCount" style="font-size: 13px; color: var(--text-secondary); font-weight: 600;">0 selected</div>
+                <button class="btn btn-danger" id="bulkDeleteBtn" onclick="deleteSelectedTransactions()" disabled>🗑️ Delete Selected</button>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeViewTransactionsModal()">Close</button>
+            <div class="data-table-container">
+                <table class="data-table" id="transactionsTable">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="selectAllTransactions" onchange="toggleSelectAllTransactions(this)"></th>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                            <th>Account</th>
+                            <th>Finance Type</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsTableBody">
+                        <!-- Transactions will be populated here -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -1284,6 +1340,7 @@
         // Initialize Dashboard
         function initializeDashboard() {
             loadFromLocalStorage();
+            loadCurrencyPreference();
             if (transactions.length === 0) {
                 generateSampleData();
             }
@@ -1362,7 +1419,9 @@
                     mortgage: 180000,
                     creditCard: 5500,
                     studentLoan: 22000,
-                    carLoan: 15000
+                    carLoan: 15000,
+                    personalLoan: 0,
+                    otherDebt: 0
                 },
                 goals: [
                     { name: 'Emergency Fund', current: 15000, target: 25000, type: 'emergency' },
@@ -1403,14 +1462,52 @@
             const currency = select.value;
             currencySymbol = currencySymbols[currency];
             currencyRate = exchangeRates[currency];
-            
+            localStorage.setItem('financialCurrency', currency);
+
             updateDashboard();
             showSuccessMessage(`Currency changed to ${currency}`);
+        }
+
+        function loadCurrencyPreference() {
+            const savedCurrency = localStorage.getItem('financialCurrency');
+            if (savedCurrency && currencySymbols[savedCurrency]) {
+                currencySymbol = currencySymbols[savedCurrency];
+                currencyRate = exchangeRates[savedCurrency];
+                const select = document.getElementById('currencySelect');
+                if (select) select.value = savedCurrency;
+            }
         }
 
         function formatCurrency(value) {
             const converted = value * currencyRate;
             return currencySymbol + Math.round(converted).toLocaleString();
+        }
+
+        function formatCategoryLabel(category) {
+            if (!category) return '';
+            return category.charAt(0).toUpperCase() + category.slice(1).replace(/([A-Z])/g, ' $1');
+        }
+
+        // Apply or reverse the dashboard-data effect of a debt / emergency fund transaction.
+        // sign = 1 to apply the effect, -1 to reverse it (e.g. on edit/delete)
+        function applyTransactionEffect(transaction, sign) {
+            if (!transaction) return;
+
+            if (transaction.type === 'debt') {
+                if (!financialData.debts) financialData.debts = {};
+                const delta = transaction.amount * (transaction.action === 'payment' ? -1 : 1) * sign;
+                const current = financialData.debts[transaction.category] || 0;
+                financialData.debts[transaction.category] = Math.max(0, current + delta);
+            } else if (transaction.type === 'emergency') {
+                if (!financialData.goals) financialData.goals = [];
+                let goal = financialData.goals.find(g => g.type === 'emergency');
+                if (!goal) {
+                    goal = { name: 'Emergency Fund', current: 0, target: 25000, type: 'emergency' };
+                    financialData.goals.push(goal);
+                }
+                const delta = transaction.amount * (transaction.action === 'withdraw' ? -1 : 1) * sign;
+                goal.current = Math.max(0, (goal.current || 0) + delta);
+            }
         }
 
         // Modal Functions
@@ -1426,13 +1523,15 @@
                     document.getElementById('transactionId').value = transaction.id;
                     document.getElementById('transactionDate').value = transaction.date;
                     document.getElementById('transactionType').value = transaction.type;
+                    updateCategoryOptions();
                     document.getElementById('transactionCategory').value = transaction.category;
                     document.getElementById('transactionFinanceType').value = transaction.financeType;
                     document.getElementById('transactionAmount').value = transaction.amount;
                     document.getElementById('transactionAccount').value = transaction.account;
                     document.getElementById('transactionDescription').value = transaction.description || '';
-                    
-                    updateCategoryOptions();
+                    if (transaction.action) {
+                        document.getElementById('transactionAction').value = transaction.action;
+                    }
                 }
             } else {
                 document.getElementById('modalTitle').textContent = 'Add New Transaction';
@@ -1447,54 +1546,154 @@
             document.getElementById('dataEntryModal').style.display = 'none';
         }
 
-        function viewTransactions() {
-            const modal = document.getElementById('viewTransactionsModal');
+        function renderTransactionsTable() {
             const tbody = document.getElementById('transactionsTableBody');
             
             tbody.innerHTML = '';
             
-            transactions.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(transaction => {
+            const typeColors = {
+                income: '#10b981',
+                expense: '#ef4444',
+                debt: '#f59e0b',
+                emergency: '#06b6d4'
+            };
+            const typeLabels = {
+                income: 'INCOME',
+                expense: 'EXPENSE',
+                debt: 'DEBT',
+                emergency: 'EMERGENCY FUND'
+            };
+
+            if (transactions.length === 0) {
                 const row = tbody.insertRow();
-                row.innerHTML = `
-                    <td>${new Date(transaction.date).toLocaleDateString()}</td>
-                    <td><span style="color: ${transaction.type === 'income' ? '#10b981' : '#ef4444'}">${transaction.type.toUpperCase()}</span></td>
-                    <td>${transaction.category}</td>
-                    <td>${formatCurrency(transaction.amount)}</td>
-                    <td>${transaction.account}</td>
-                    <td>${transaction.financeType}</td>
-                    <td class="actions">
-                        <button class="btn btn-secondary" onclick="openDataEntryModal(${transaction.id})">Edit</button>
-                        <button class="btn btn-danger" onclick="deleteTransaction(${transaction.id})">Delete</button>
-                    </td>
-                `;
-            });
+                row.innerHTML = `<td colspan="8" style="text-align: center; color: var(--text-secondary); padding: 30px;">No transactions yet. Click "Add Entry" to get started.</td>`;
+            } else {
+                transactions.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(transaction => {
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td><input type="checkbox" class="transaction-checkbox" value="${transaction.id}" onchange="updateBulkDeleteState()"></td>
+                        <td>${new Date(transaction.date).toLocaleDateString()}</td>
+                        <td><span style="color: ${typeColors[transaction.type] || '#4a5568'}">${typeLabels[transaction.type] || transaction.type.toUpperCase()}</span></td>
+                        <td>${formatCategoryLabel(transaction.category)}</td>
+                        <td>${formatCurrency(transaction.amount)}</td>
+                        <td>${transaction.account}</td>
+                        <td>${transaction.financeType}</td>
+                        <td class="actions">
+                            <button class="btn btn-secondary" onclick="openDataEntryModal(${transaction.id})">Edit</button>
+                            <button class="btn btn-danger" onclick="deleteTransaction(${transaction.id})">Delete</button>
+                        </td>
+                    `;
+                });
+            }
             
-            modal.style.display = 'block';
+            const selectAll = document.getElementById('selectAllTransactions');
+            if (selectAll) selectAll.checked = false;
+            updateBulkDeleteState();
         }
 
-        function closeViewTransactionsModal() {
-            document.getElementById('viewTransactionsModal').style.display = 'none';
+        function openTransactionsPage() {
+            renderTransactionsTable();
+            document.getElementById('transactionsPage').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeTransactionsPage() {
+            document.getElementById('transactionsPage').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        function isTransactionsPageOpen() {
+            const page = document.getElementById('transactionsPage');
+            return page && page.style.display === 'block';
+        }
+
+        function toggleSelectAllTransactions(checkbox) {
+            document.querySelectorAll('.transaction-checkbox').forEach(cb => {
+                cb.checked = checkbox.checked;
+            });
+            updateBulkDeleteState();
+        }
+
+        function updateBulkDeleteState() {
+            const allBoxes = document.querySelectorAll('.transaction-checkbox');
+            const checkedBoxes = document.querySelectorAll('.transaction-checkbox:checked');
+            const bulkBtn = document.getElementById('bulkDeleteBtn');
+            const countLabel = document.getElementById('selectedCount');
+            const selectAll = document.getElementById('selectAllTransactions');
+
+            if (bulkBtn) bulkBtn.disabled = checkedBoxes.length === 0;
+            if (countLabel) countLabel.textContent = `${checkedBoxes.length} selected`;
+            if (selectAll) selectAll.checked = allBoxes.length > 0 && checkedBoxes.length === allBoxes.length;
+        }
+
+        function deleteSelectedTransactions() {
+            const checkedIds = Array.from(document.querySelectorAll('.transaction-checkbox:checked'))
+                .map(cb => parseInt(cb.value));
+
+            if (checkedIds.length === 0) return;
+
+            if (!confirm(`Are you sure you want to delete ${checkedIds.length} selected transaction(s)? This cannot be undone.`)) {
+                return;
+            }
+
+            checkedIds.forEach(id => {
+                const transaction = transactions.find(t => t.id === id);
+                if (transaction) applyTransactionEffect(transaction, -1);
+            });
+
+            transactions = transactions.filter(t => !checkedIds.includes(t.id));
+            saveToLocalStorage();
+            renderTransactionsTable();
+            updateDashboard();
+            showSuccessMessage(`${checkedIds.length} transaction(s) deleted successfully!`);
         }
 
         // Transaction Functions
         function updateCategoryOptions() {
             const type = document.getElementById('transactionType').value;
             const categorySelect = document.getElementById('transactionCategory');
+            const actionGroup = document.getElementById('transactionActionGroup');
+            const actionSelect = document.getElementById('transactionAction');
             
             categorySelect.innerHTML = '<option value="">Select Category</option>';
+            categorySelect.disabled = false;
             
             const categories = {
                 'income': ['salary', 'freelance', 'investments', 'passive', 'businessRevenue', 'consulting', 'products'],
-                'expense': ['housing', 'transportation', 'food', 'utilities', 'insurance', 'healthcare', 'entertainment', 'subscriptions', 'businessExpenses', 'marketing', 'software', 'office']
+                'expense': ['housing', 'transportation', 'food', 'utilities', 'insurance', 'healthcare', 'entertainment', 'subscriptions', 'businessExpenses', 'marketing', 'software', 'office'],
+                'debt': ['mortgage', 'creditCard', 'studentLoan', 'carLoan', 'personalLoan', 'otherDebt'],
+                'emergency': ['emergencyFund']
             };
             
             if (type && categories[type]) {
                 categories[type].forEach(category => {
                     const option = document.createElement('option');
                     option.value = category;
-                    option.textContent = category.charAt(0).toUpperCase() + category.slice(1).replace(/([A-Z])/g, ' $1');
+                    option.textContent = formatCategoryLabel(category);
                     categorySelect.appendChild(option);
                 });
+            }
+
+            if (type === 'emergency') {
+                categorySelect.value = 'emergencyFund';
+                categorySelect.disabled = true;
+            }
+
+            if (type === 'debt' || type === 'emergency') {
+                actionGroup.style.display = '';
+                actionSelect.innerHTML = '<option value="">Select Action</option>';
+                const actionOptions = type === 'debt'
+                    ? [['add', 'Add to Debt (Borrow)'], ['payment', 'Make Payment (Reduce Debt)']]
+                    : [['contribute', 'Contribute Funds'], ['withdraw', 'Withdraw Funds']];
+                actionOptions.forEach(([value, label]) => {
+                    const option = document.createElement('option');
+                    option.value = value;
+                    option.textContent = label;
+                    actionSelect.appendChild(option);
+                });
+            } else {
+                actionGroup.style.display = 'none';
+                actionSelect.innerHTML = '<option value="">Select Action</option>';
             }
         }
 
@@ -1507,9 +1706,16 @@
             const amount = parseFloat(document.getElementById('transactionAmount').value);
             const account = document.getElementById('transactionAccount').value;
             const description = document.getElementById('transactionDescription').value;
+            const needsAction = (type === 'debt' || type === 'emergency');
+            const action = needsAction ? document.getElementById('transactionAction').value : null;
             
             if (!date || !type || !category || !financeType || !amount || !account) {
                 alert('Please fill in all required fields');
+                return;
+            }
+
+            if (needsAction && !action) {
+                alert('Please select an action (e.g. payment or contribution)');
                 return;
             }
             
@@ -1521,89 +1727,111 @@
                 financeType,
                 amount,
                 account,
-                description
+                description,
+                action
             };
             
             if (id) {
                 const index = transactions.findIndex(t => t.id === parseInt(id));
                 if (index !== -1) {
+                    applyTransactionEffect(transactions[index], -1);
                     transactions[index] = transaction;
+                    applyTransactionEffect(transaction, 1);
                     showSuccessMessage('Transaction updated successfully!');
                 }
             } else {
                 transactions.push(transaction);
+                applyTransactionEffect(transaction, 1);
                 showSuccessMessage('Transaction added successfully!');
             }
             
             saveToLocalStorage();
             closeDataEntryModal();
             updateDashboard();
+            if (isTransactionsPageOpen()) renderTransactionsTable();
         }
 
         function deleteTransaction(id) {
             if (confirm('Are you sure you want to delete this transaction?')) {
+                const transaction = transactions.find(t => t.id === id);
+                if (transaction) applyTransactionEffect(transaction, -1);
                 transactions = transactions.filter(t => t.id !== id);
                 saveToLocalStorage();
-                viewTransactions();
+                renderTransactionsTable();
                 updateDashboard();
                 showSuccessMessage('Transaction deleted successfully!');
             }
         }
 
-        // File Import Function
-        function handleFileImport(event) {
+        // Backup & Restore Functions (JSON)
+        function downloadBackup() {
+            const currentCurrency = document.getElementById('currencySelect').value;
+            const backup = {
+                version: 1,
+                exportedAt: new Date().toISOString(),
+                currency: currentCurrency,
+                transactions: transactions,
+                financialData: financialData
+            };
+
+            const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('hidden', '');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'financial-backup-' + new Date().toISOString().split('T')[0] + '.json');
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            showSuccessMessage('Backup downloaded successfully!');
+        }
+
+        function handleRestoreBackup(event) {
             const file = event.target.files[0];
             if (!file) return;
-            
+
+            if (!confirm('Restoring a backup will overwrite ALL current transactions and dashboard data. This cannot be undone. Continue?')) {
+                event.target.value = '';
+                return;
+            }
+
             showLoading();
-            
+
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-                    
-                    // Map imported data to transaction format
-                    const importedTransactions = jsonData.map((row, index) => {
-                        return {
-                            id: Date.now() + index,
-                            date: parseDate(row.Date || row.date || new Date().toISOString().split('T')[0]),
-                            type: (row.Type || row.type || 'expense').toLowerCase(),
-                            category: (row.Category || row.category || 'other').toLowerCase().replace(/\s+/g, ''),
-                            amount: parseFloat(row.Amount || row.amount || 0),
-                            account: (row.Account || row.account || 'checking').toLowerCase(),
-                            financeType: (row['Finance Type'] || row.financeType || 'personal').toLowerCase(),
-                            description: row.Description || row.description || ''
-                        };
-                    });
-                    
-                    transactions = [...transactions, ...importedTransactions];
-                    saveToLocalStorage();
-                    updateDashboard();
-                    hideLoading();
-                    showSuccessMessage(`Successfully imported ${importedTransactions.length} transactions!`);
-                } catch (error) {
-                    console.error('Import error:', error);
-                    hideLoading();
-                    alert('Error importing file. Please check the format and try again.');
-                }
-            };
-            
-            reader.readAsArrayBuffer(file);
-            event.target.value = '';
-        }
+                    const backup = JSON.parse(e.target.result);
 
-        function parseDate(dateStr) {
-            if (!dateStr) return new Date().toISOString().split('T')[0];
-            
-            const date = new Date(dateStr);
-            if (!isNaN(date.getTime())) {
-                return date.toISOString().split('T')[0];
-            }
-            
-            return new Date().toISOString().split('T')[0];
+                    if (!backup || !Array.isArray(backup.transactions) || typeof backup.financialData !== 'object') {
+                        throw new Error('Invalid backup file format');
+                    }
+
+                    transactions = backup.transactions;
+                    financialData = backup.financialData;
+                    saveToLocalStorage();
+
+                    if (backup.currency && currencySymbols[backup.currency]) {
+                        localStorage.setItem('financialCurrency', backup.currency);
+                        currencySymbol = currencySymbols[backup.currency];
+                        currencyRate = exchangeRates[backup.currency];
+                        document.getElementById('currencySelect').value = backup.currency;
+                    }
+
+                    updateDashboard();
+                    if (isTransactionsPageOpen()) renderTransactionsTable();
+                    hideLoading();
+                    showSuccessMessage('Backup restored successfully!');
+                } catch (error) {
+                    console.error('Restore error:', error);
+                    hideLoading();
+                    alert('Error restoring backup. Please make sure you selected a valid financial backup JSON file.');
+                }
+
+                event.target.value = '';
+            };
+
+            reader.readAsText(file);
         }
 
         // Export Functions
@@ -1635,6 +1863,7 @@
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 const pageWidth = pdf.internal.pageSize.getWidth();
                 const pageHeight = pdf.internal.pageSize.getHeight();
+                const marginX = 14;
                 
                 // Title
                 pdf.setFontSize(20);
@@ -1643,13 +1872,13 @@
                 
                 pdf.setFontSize(10);
                 pdf.setTextColor(100);
-                pdf.text('Generated on: ' + new Date().toLocaleDateString(), pageWidth / 2, 28, { align: 'center' });
+                pdf.text('Generated on: ' + new Date().toLocaleString(), pageWidth / 2, 28, { align: 'center' });
                 
                 // KPIs
                 let yPos = 40;
                 pdf.setFontSize(14);
                 pdf.setTextColor(0);
-                pdf.text('Key Performance Indicators', 14, yPos);
+                pdf.text('Key Performance Indicators', marginX, yPos);
                 
                 yPos += 8;
                 pdf.setFontSize(10);
@@ -1660,23 +1889,25 @@
                     ['Total Expenses (MTD)', document.getElementById('kpi-expenses').textContent],
                     ['Savings Rate', document.getElementById('kpi-savings').textContent],
                     ['Net Worth', document.getElementById('kpi-networth').textContent],
-                    ['Total Debt', document.getElementById('kpi-debt').textContent]
+                    ['Total Debt', document.getElementById('kpi-debt').textContent],
+                    ['Burn Rate', document.getElementById('kpi-burn').textContent],
+                    ['Emergency Fund Runway', document.getElementById('kpi-emergency').textContent]
                 ];
                 
                 kpis.forEach(([label, value]) => {
-                    pdf.text(`${label}: ${value}`, 14, yPos);
+                    pdf.text(`${label}: ${value}`, marginX, yPos);
                     yPos += 6;
                 });
                 
                 // Insights
-                yPos += 10;
+                yPos += 8;
                 pdf.setFontSize(14);
-                pdf.text('Smart Insights & Recommendations', 14, yPos);
+                pdf.text('Smart Insights & Recommendations', marginX, yPos);
                 yPos += 8;
                 pdf.setFontSize(9);
                 
                 const insights = document.querySelectorAll('.insight-item');
-                insights.forEach((insight, index) => {
+                insights.forEach((insight) => {
                     if (yPos > pageHeight - 30) {
                         pdf.addPage();
                         yPos = 20;
@@ -1686,20 +1917,108 @@
                     const desc = insight.querySelector('.insight-desc').textContent;
                     
                     pdf.setFont(undefined, 'bold');
-                    pdf.text(title, 14, yPos);
+                    pdf.text(title, marginX, yPos);
                     yPos += 5;
                     pdf.setFont(undefined, 'normal');
                     
-                    const lines = pdf.splitTextToSize(desc, pageWidth - 28);
-                    pdf.text(lines, 14, yPos);
+                    const lines = pdf.splitTextToSize(desc, pageWidth - marginX * 2);
+                    pdf.text(lines, marginX, yPos);
                     yPos += lines.length * 4 + 4;
                 });
                 
-                // Charts (capture as images)
+                // Charts (capture each Chart.js canvas as an image)
+                const chartList = [
+                    ['incomeExpenses', 'Income vs Expenses Trend'],
+                    ['incomeSources', 'Income Sources Breakdown'],
+                    ['expenseCategories', 'Expense Categories'],
+                    ['budgetGauge', 'Budget vs Actual (Gauge)'],
+                    ['investment', 'Investment Portfolio'],
+                    ['netWorth', 'Net Worth Trend'],
+                    ['savingsRate', 'Savings Rate'],
+                    ['goals', 'Goals Progress'],
+                    ['debt', 'Debt Payoff Timeline'],
+                    ['budgetActual', 'Budget vs Actual Comparison'],
+                    ['incomeComparison', 'Income Comparison'],
+                    ['spendingPattern', 'Spending Pattern'],
+                    ['healthScore', 'Financial Health Score']
+                ];
+
+                let chartsOnPage = 0;
+                chartList.forEach(([key, title]) => {
+                    const chart = charts[key];
+                    if (!chart || typeof chart.toBase64Image !== 'function') return;
+
+                    if (chartsOnPage === 0) {
+                        pdf.addPage();
+                        yPos = 20;
+                        pdf.setFontSize(14);
+                        pdf.setTextColor(0);
+                        pdf.text('Visual Analytics', marginX, yPos);
+                        yPos += 8;
+                    }
+
+                    const imgData = chart.toBase64Image();
+                    const imgWidth = pageWidth - marginX * 2;
+                    const imgHeight = 75;
+
+                    pdf.setFontSize(11);
+                    pdf.setFont(undefined, 'bold');
+                    pdf.text(title, marginX, yPos);
+                    pdf.setFont(undefined, 'normal');
+                    pdf.addImage(imgData, 'PNG', marginX, yPos + 4, imgWidth, imgHeight);
+
+                    yPos += imgHeight + 18;
+                    chartsOnPage++;
+
+                    if (chartsOnPage >= 2) chartsOnPage = 0;
+                });
+                
+                // Transaction History
                 pdf.addPage();
                 yPos = 20;
                 pdf.setFontSize(14);
-                pdf.text('Visual Analytics', 14, yPos);
+                pdf.setTextColor(0);
+                pdf.text('Transaction History', marginX, yPos);
+                yPos += 10;
+
+                const colX = [marginX, marginX + 26, marginX + 56, marginX + 96, marginX + 126, marginX + 156];
+                const headers = ['Date', 'Type', 'Category', 'Amount', 'Account', 'Finance'];
+
+                function drawTableHeader() {
+                    pdf.setFontSize(9);
+                    pdf.setFont(undefined, 'bold');
+                    headers.forEach((h, i) => pdf.text(h, colX[i], yPos));
+                    pdf.setFont(undefined, 'normal');
+                    yPos += 5;
+                    pdf.setDrawColor(220);
+                    pdf.line(marginX, yPos - 2, pageWidth - marginX, yPos - 2);
+                }
+
+                drawTableHeader();
+
+                const sortedTransactions = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                if (sortedTransactions.length === 0) {
+                    pdf.setFontSize(10);
+                    pdf.text('No transactions recorded yet.', marginX, yPos + 4);
+                } else {
+                    sortedTransactions.forEach(t => {
+                        if (yPos > pageHeight - 15) {
+                            pdf.addPage();
+                            yPos = 20;
+                            drawTableHeader();
+                        }
+
+                        pdf.setFontSize(8);
+                        pdf.text(new Date(t.date).toLocaleDateString(), colX[0], yPos);
+                        pdf.text(t.type, colX[1], yPos);
+                        pdf.text(formatCategoryLabel(t.category), colX[2], yPos);
+                        pdf.text(formatCurrency(t.amount), colX[3], yPos);
+                        pdf.text(t.account, colX[4], yPos);
+                        pdf.text(t.financeType, colX[5], yPos);
+                        yPos += 5;
+                    });
+                }
                 
                 // Save the PDF
                 pdf.save('financial-dashboard-report-' + new Date().toISOString().split('T')[0] + '.pdf');
@@ -2738,18 +3057,89 @@
             updateDashboard();
         }
 
-        function resetFilters() {
+        function resetAllData() {
+            const confirmed = confirm(
+                '⚠️ WARNING: This will permanently erase ALL transactions and reset every dashboard entry (income, expenses, investments, debts, and goals) back to zero.\n\nThis action cannot be undone.\n\nAre you sure you want to continue?'
+            );
+
+            if (!confirmed) return;
+
+            transactions = [];
+            generateEmptyFinancialData();
+            localStorage.removeItem('financialTransactions');
+            localStorage.removeItem('financialData');
+            saveToLocalStorage();
+
             document.getElementById('timePeriod').value = '12months';
             document.getElementById('categoryFilter').value = 'all';
             document.getElementById('accountFilter').value = 'all';
             document.getElementById('topNFilter').value = 'all';
             document.getElementById('goalFilter').value = 'all';
-            document.getElementById('currencySelect').value = 'USD';
-            
-            currencySymbol = '$';
-            currencyRate = 1;
-            
+
             changeView('combined');
+            showSuccessMessage('All transactions and dashboard entries have been reset.');
+        }
+
+        function generateEmptyFinancialData() {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const zeros = () => months.map(() => 0);
+
+            financialData = {
+                months: months,
+                income: {
+                    personal: {
+                        salary: zeros(),
+                        freelance: zeros(),
+                        investments: zeros(),
+                        passive: zeros()
+                    },
+                    professional: {
+                        businessRevenue: zeros(),
+                        consulting: zeros(),
+                        products: zeros()
+                    }
+                },
+                expenses: {
+                    personal: {
+                        housing: zeros(),
+                        transportation: zeros(),
+                        food: zeros(),
+                        utilities: zeros(),
+                        insurance: zeros(),
+                        healthcare: zeros(),
+                        entertainment: zeros(),
+                        subscriptions: zeros()
+                    },
+                    professional: {
+                        businessExpenses: zeros(),
+                        marketing: zeros(),
+                        software: zeros(),
+                        office: zeros()
+                    }
+                },
+                investments: {
+                    stocks: 0,
+                    bonds: 0,
+                    mutualFunds: 0,
+                    crypto: 0,
+                    realEstate: 0
+                },
+                debts: {
+                    mortgage: 0,
+                    creditCard: 0,
+                    studentLoan: 0,
+                    carLoan: 0,
+                    personalLoan: 0,
+                    otherDebt: 0
+                },
+                goals: [
+                    { name: 'Emergency Fund', current: 0, target: 25000, type: 'emergency' },
+                    { name: 'Retirement 401k', current: 0, target: 120000, type: 'retirement' },
+                    { name: 'House Down Payment', current: 0, target: 60000, type: 'purchase' },
+                    { name: 'Vacation Fund', current: 0, target: 8000, type: 'purchase' },
+                    { name: 'Credit Card Payoff', current: 0, target: 5500, type: 'debt' }
+                ]
+            };
         }
 
         function updateDashboard() {
@@ -2770,13 +3160,9 @@
         // Close modals when clicking outside
         window.onclick = function(event) {
             const dataEntryModal = document.getElementById('dataEntryModal');
-            const viewTransactionsModal = document.getElementById('viewTransactionsModal');
             
             if (event.target == dataEntryModal) {
                 closeDataEntryModal();
-            }
-            if (event.target == viewTransactionsModal) {
-                closeViewTransactionsModal();
             }
         }
 
