@@ -15,14 +15,29 @@
             --investment-color:#8b5cf6;--debt-color:#f59e0b;
             --goal-color:#06b6d4;--border-radius:16px;
             --shadow:0 2px 4px rgba(0,0,0,.05);--shadow-lg:0 8px 16px rgba(0,0,0,.08);
+            --border-color:#e2e8f0;--input-bg:#fff;--card-bg:#fff;--table-header-bg:#f8f9fa;
+            --table-hover:#f8f9fa;--modal-bg:#fff;
         }
-        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#fff;min-height:100vh;overflow-x:hidden}
+        body.dark-mode{
+            --bg-primary:#0f172a;--bg-secondary:#1e293b;
+            --text-primary:#f1f5f9;--text-secondary:#94a3b8;
+            --border-color:#334155;--input-bg:#1e293b;--card-bg:#1e293b;
+            --table-header-bg:#1e293b;--table-hover:#0f172a;--modal-bg:#1e293b;
+            --shadow:0 2px 4px rgba(0,0,0,.3);--shadow-lg:0 8px 16px rgba(0,0,0,.5);
+        }
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;overflow-x:hidden;transition:background .3s,color .3s}
+
+        /* Theme toggle button */
+        .theme-toggle{display:flex;align-items:center;gap:8px;padding:8px 14px;border:2px solid var(--border-color);border-radius:8px;background:var(--card-bg);font-size:13px;font-weight:600;cursor:pointer;transition:all .3s;color:var(--text-primary)}
+        .theme-toggle:hover{border-color:#667eea;color:#667eea}
+        .theme-toggle .toggle-icon{font-size:16px;transition:transform .4s}
+        body.dark-mode .theme-toggle .toggle-icon{transform:rotate(360deg)}
         .dashboard-container{max-width:100%;margin:0;background:var(--bg-primary);padding:24px}
-        .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;flex-wrap:wrap;gap:20px;padding-bottom:20px;border-bottom:2px solid #e2e8f0}
+        .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;flex-wrap:wrap;gap:20px;padding-bottom:20px;border-bottom:2px solid var(--border-color)}
         .header h1{font-size:28px;color:var(--text-primary);display:flex;align-items:center;gap:12px}
         .header-icon{width:40px;height:40px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px}
         .header-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-        .currency-selector{display:flex;align-items:center;gap:8px;padding:8px 16px;background:#fff;border:2px solid #e2e8f0;border-radius:8px;font-size:14px;cursor:pointer;transition:all .3s}
+        .currency-selector{display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--card-bg);border:2px solid var(--border-color);border-radius:8px;font-size:14px;cursor:pointer;transition:all .3s}
         .currency-selector:hover{border-color:#667eea}
         .currency-selector select{border:none;background:transparent;font-size:14px;font-weight:600;color:var(--text-primary);cursor:pointer;outline:none}
         .filter-section{background:var(--bg-secondary);border-radius:var(--border-radius);padding:24px;margin-bottom:30px;box-shadow:var(--shadow)}
@@ -31,9 +46,9 @@
         .filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
         .filter-group{display:flex;flex-direction:column;gap:8px}
         .filter-group label{font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px}
-        .filter-group select,.filter-group input{padding:12px 14px;border:2px solid #e2e8f0;border-radius:8px;font-size:14px;background:#fff;transition:all .3s;cursor:pointer;color:var(--text-primary)}
+        .filter-group select,.filter-group input{padding:12px 14px;border:2px solid var(--border-color);border-radius:8px;font-size:14px;background:var(--input-bg);transition:all .3s;cursor:pointer;color:var(--text-primary)}
         .filter-group select:focus,.filter-group input:focus{outline:none;border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,234,.1)}
-        .toggle-switch{display:flex;background:#e2e8f0;border-radius:10px;padding:4px;width:100%}
+        .toggle-switch{display:flex;background:var(--border-color);border-radius:10px;padding:4px;width:100%}
         .toggle-option{flex:1;padding:10px 12px;border:none;background:transparent;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:all .3s;color:var(--text-secondary);text-align:center}
         .toggle-option.active{background:#fff;color:#667eea;box-shadow:0 2px 6px rgba(0,0,0,.12)}
         .btn{padding:10px 20px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all .3s;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
@@ -45,7 +60,7 @@
         .btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
         .btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
         .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin-bottom:30px}
-        .kpi-card{background:#fff;border-radius:var(--border-radius);padding:24px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s;border:1px solid #e2e8f0}
+        .kpi-card{background:var(--card-bg);border-radius:var(--border-radius);padding:24px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s;border:1px solid var(--border-color)}
         .kpi-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
         .kpi-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:4px;background:linear-gradient(90deg,var(--card-color,#667eea),var(--card-color-end,#764ba2))}
         .kpi-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
@@ -57,7 +72,7 @@
         .kpi-change.negative{color:var(--expense-color)}
         .kpi-change.neutral{color:var(--text-secondary)}
         .chart-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:20px;margin-bottom:30px}
-        .chart-card{background:#fff;border-radius:var(--border-radius);padding:24px;box-shadow:var(--shadow);position:relative;border:1px solid #e2e8f0}
+        .chart-card{background:var(--card-bg);border-radius:var(--border-radius);padding:24px;box-shadow:var(--shadow);position:relative;border:1px solid var(--border-color)}
         .chart-card.span-12{grid-column:span 12}
         .chart-card.span-8{grid-column:span 8}
         .chart-card.span-6{grid-column:span 6}
@@ -67,8 +82,8 @@
         .chart-title{font-size:16px;font-weight:700;color:var(--text-primary)}
         .chart-subtitle{font-size:12px;color:var(--text-secondary);margin-top:4px}
         .chart-actions{display:flex;gap:8px}
-        .chart-action-btn{padding:6px 12px;border:none;background:#f1f5f9;border-radius:6px;font-size:12px;cursor:pointer;transition:all .3s;color:var(--text-secondary)}
-        .chart-action-btn:hover{background:#e2e8f0;color:var(--text-primary)}
+        .chart-action-btn{padding:6px 12px;border:none;background:var(--bg-secondary);border-radius:6px;font-size:12px;cursor:pointer;transition:all .3s;color:var(--text-secondary)}
+        .chart-action-btn:hover{background:var(--border-color);color:var(--text-primary)}
         .chart-wrapper{position:relative;height:300px}
         .chart-wrapper.tall{height:400px}
         .chart-wrapper.short{height:200px}
@@ -80,35 +95,35 @@
         @keyframes fadeIn{from{opacity:0}to{opacity:1}}
         .full-page{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg-primary);z-index:2000;overflow-y:auto;animation:fadeIn .25s}
         .full-page.active{display:block}
-        .full-page-header{display:flex;justify-content:space-between;align-items:center;padding:24px 32px;border-bottom:2px solid #e2e8f0;position:sticky;top:0;background:var(--bg-primary);z-index:1}
+        .full-page-header{display:flex;justify-content:space-between;align-items:center;padding:24px 32px;border-bottom:2px solid var(--border-color);position:sticky;top:0;background:var(--bg-primary);z-index:1}
         .full-page-header h2{font-size:22px;color:var(--text-primary)}
         .full-page-body{padding:24px 32px 48px;max-width:1400px;margin:0 auto}
-        .modal-content{background:#fff;margin:5% auto;padding:0;border-radius:16px;width:90%;max-width:800px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:slideIn .3s}
+        .modal-content{background:var(--modal-bg);margin:5% auto;padding:0;border-radius:16px;width:90%;max-width:800px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:slideIn .3s}
         @keyframes slideIn{from{transform:translateY(-50px);opacity:0}to{transform:translateY(0);opacity:1}}
-        .modal-header{padding:24px;border-bottom:2px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center}
+        .modal-header{padding:24px;border-bottom:2px solid var(--border-color);display:flex;justify-content:space-between;align-items:center}
         .modal-header h2{font-size:20px;color:var(--text-primary)}
         .close{color:#aaa;font-size:28px;font-weight:bold;cursor:pointer;transition:color .3s}
-        .close:hover{color:#000}
+        .close:hover{color:var(--text-primary)}
         .modal-body{padding:24px}
         .form-group{margin-bottom:20px}
         .form-group label{display:block;margin-bottom:8px;font-weight:600;color:var(--text-primary);font-size:14px}
-        .form-group input,.form-group select,.form-group textarea{width:100%;padding:12px;border:2px solid #e2e8f0;border-radius:8px;font-size:14px;transition:all .3s}
+        .form-group input,.form-group select,.form-group textarea{width:100%;padding:12px;border:2px solid var(--border-color);border-radius:8px;font-size:14px;transition:all .3s;background:var(--input-bg);color:var(--text-primary)}
         .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,234,.1)}
         .form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
-        .modal-footer{padding:24px;border-top:2px solid #e2e8f0;display:flex;justify-content:flex-end;gap:12px}
+        .modal-footer{padding:24px;border-top:2px solid var(--border-color);display:flex;justify-content:flex-end;gap:12px}
         .data-table-container{overflow-x:auto;margin-top:20px}
-        .data-table{width:100%;border-collapse:collapse;background:#fff}
-        .data-table th,.data-table td{padding:12px;text-align:left;border-bottom:1px solid #e2e8f0}
-        .data-table th{background:#f8f9fa;font-weight:600;color:var(--text-primary);font-size:13px;text-transform:uppercase;letter-spacing:.5px}
-        .data-table tr:hover{background:#f8f9fa}
+        .data-table{width:100%;border-collapse:collapse;background:var(--card-bg)}
+        .data-table th,.data-table td{padding:12px;text-align:left;border-bottom:1px solid var(--border-color);color:var(--text-primary)}
+        .data-table th{background:var(--table-header-bg);font-weight:600;color:var(--text-primary);font-size:13px;text-transform:uppercase;letter-spacing:.5px}
+        .data-table tr:hover{background:var(--table-hover)}
         .data-table .actions{display:flex;gap:8px}
         .data-table .actions button{padding:4px 8px;font-size:12px;border-radius:4px}
-        .insights-panel{background:#fff;border-radius:var(--border-radius);padding:0;max-height:400px;overflow-y:auto}
-        .insight-item{padding:16px;border-left:4px solid;margin-bottom:12px;border-radius:8px;background:#f8fafc}
-        .insight-item.warning{border-color:#f59e0b;background:#fffbeb}
-        .insight-item.success{border-color:#10b981;background:#f0fdf4}
-        .insight-item.info{border-color:#3b82f6;background:#eff6ff}
-        .insight-item.danger{border-color:#ef4444;background:#fef2f2}
+        .insights-panel{background:var(--card-bg);border-radius:var(--border-radius);padding:0;max-height:400px;overflow-y:auto}
+        .insight-item{padding:16px;border-left:4px solid;margin-bottom:12px;border-radius:8px}
+        .insight-item.warning{border-color:#f59e0b;background:rgba(245,158,11,.1)}
+        .insight-item.success{border-color:#10b981;background:rgba(16,185,129,.1)}
+        .insight-item.info{border-color:#3b82f6;background:rgba(59,130,246,.1)}
+        .insight-item.danger{border-color:#ef4444;background:rgba(239,68,68,.1)}
         .insight-title{font-weight:600;font-size:14px;margin-bottom:4px;color:var(--text-primary)}
         .insight-desc{font-size:13px;color:var(--text-secondary)}
         .file-upload{position:relative;display:inline-block}
@@ -122,11 +137,11 @@
         .success-message.show{display:block}
         /* Budget management table */
         .budget-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:8px}
-        .budget-row{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#f8f9fa;border-radius:8px;border:1px solid #e2e8f0}
+        .budget-row{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg-secondary);border-radius:8px;border:1px solid var(--border-color)}
         .budget-row label{flex:1;font-size:13px;font-weight:600;color:var(--text-primary)}
-        .budget-row input{width:120px;padding:6px 10px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:13px;text-align:right}
+        .budget-row input{width:120px;padding:6px 10px;border:1.5px solid var(--border-color);border-radius:6px;font-size:13px;text-align:right;background:var(--input-bg);color:var(--text-primary)}
         .budget-row input:focus{outline:none;border-color:#667eea}
-        .section-tabs{display:flex;gap:8px;margin-bottom:20px;border-bottom:2px solid #e2e8f0;padding-bottom:0}
+        .section-tabs{display:flex;gap:8px;margin-bottom:20px;border-bottom:2px solid var(--border-color);padding-bottom:0}
         .tab-btn{padding:10px 20px;border:none;background:transparent;font-size:14px;font-weight:600;cursor:pointer;color:var(--text-secondary);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s}
         .tab-btn.active{color:#667eea;border-bottom-color:#667eea}
         @media(max-width:1200px){.chart-card.span-8{grid-column:span 12}.chart-card.span-6{grid-column:span 12}.chart-card.span-4{grid-column:span 6}}
@@ -144,7 +159,7 @@
         .save-indicator.error{background:#fef2f2;border-color:#fecaca;color:#991b1b}
         .save-indicator.error .dot{background:#ef4444}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-        .drive-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border:2px solid #e2e8f0;border-radius:8px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:all .3s;color:#4a5568}
+        .drive-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border:2px solid var(--border-color);border-radius:8px;background:var(--card-bg);font-size:13px;font-weight:600;cursor:pointer;transition:all .3s;color:var(--text-secondary)}
         .drive-btn:hover{border-color:#667eea;color:#667eea}
         .drive-btn.connected{border-color:#10b981;background:#f0fdf4;color:#065f46}
         .drive-btn.connected .drive-dot{background:#10b981}
@@ -159,6 +174,11 @@
     <div class="header">
         <h1><div class="header-icon">💰</div>FinanceOS</h1>
         <div class="header-actions">
+            <!-- Dark/Light Theme Toggle -->
+            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggleBtn" title="Toggle dark/light mode">
+                <span class="toggle-icon" id="themeIcon">🌙</span>
+                <span id="themeLabel">Dark</span>
+            </button>
             <!-- Save indicator -->
             <div class="save-indicator" id="saveIndicator">
                 <span class="dot"></span>
@@ -408,6 +428,11 @@
                     </select>
                 </div>
             </div>
+            <!-- Provider field (debt only) -->
+            <div class="form-group" id="providerGroup" style="display:none">
+                <label>Provider / Lender Name</label>
+                <input type="text" id="transactionProvider" placeholder="e.g. HDFC Bank, SBI, Friend's name…">
+            </div>
             <div class="form-group">
                 <label>Description</label>
                 <textarea id="transactionDescription" rows="2"></textarea>
@@ -459,7 +484,7 @@
     </div>
 </div>
 
-<!-- Transactions Page -->
+<!-- Transactions Page (Split Layout) -->
 <div id="transactionsPage" class="full-page">
     <div class="full-page-header">
         <h2>All Transactions</h2>
@@ -468,22 +493,54 @@
             <button class="btn btn-secondary" onclick="closeTransactionsPage()">← Dashboard</button>
         </div>
     </div>
-    <div class="full-page-body">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px">
-            <div id="selectedCount" style="font-size:13px;color:var(--text-secondary);font-weight:600">0 selected</div>
-            <button class="btn btn-danger" id="bulkDeleteBtn" onclick="deleteSelectedTransactions()" disabled>🗑️ Delete Selected</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;height:calc(100vh - 81px);overflow:hidden">
+        <!-- LEFT PANEL: Income & Expense -->
+        <div style="border-right:2px solid var(--border-color);display:flex;flex-direction:column;overflow:hidden">
+            <div style="padding:16px 20px;background:var(--bg-secondary);border-bottom:1px solid var(--border-color);display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
+                <div>
+                    <div style="font-size:15px;font-weight:700;color:var(--text-primary)">💸 Income & Expenses</div>
+                    <div style="font-size:12px;color:var(--text-secondary);margin-top:2px" id="incExpSummary">—</div>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center">
+                    <div id="selectedCountLeft" style="font-size:12px;color:var(--text-secondary);font-weight:600">0 selected</div>
+                    <button class="btn btn-danger" id="bulkDeleteBtnLeft" onclick="deleteSelectedTransactions('left')" disabled style="padding:6px 12px;font-size:12px">🗑️ Delete</button>
+                </div>
+            </div>
+            <div style="overflow-y:auto;flex:1">
+                <table class="data-table" style="font-size:13px">
+                    <thead style="position:sticky;top:0;z-index:1">
+                        <tr>
+                            <th style="width:32px"><input type="checkbox" id="selectAllLeft" onchange="toggleSelectAll('left',this)"></th>
+                            <th>Date</th><th>Type</th><th>Category</th><th>Amount</th><th>Account</th><th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="incExpTableBody"></tbody>
+                </table>
+            </div>
         </div>
-        <div class="data-table-container">
-            <table class="data-table" id="transactionsTable">
-                <thead>
-                    <tr>
-                        <th><input type="checkbox" id="selectAllTransactions" onchange="toggleSelectAllTransactions(this)"></th>
-                        <th>Date</th><th>Type</th><th>Category</th><th>Amount</th>
-                        <th>Account</th><th>Finance Type</th><th>Description</th><th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="transactionsTableBody"></tbody>
-            </table>
+        <!-- RIGHT PANEL: Debt/Loan & Emergency Fund -->
+        <div style="display:flex;flex-direction:column;overflow:hidden">
+            <div style="padding:16px 20px;background:var(--bg-secondary);border-bottom:1px solid var(--border-color);display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
+                <div>
+                    <div style="font-size:15px;font-weight:700;color:var(--text-primary)">🏦 Debt / Loan & Emergency Fund</div>
+                    <div style="font-size:12px;color:var(--text-secondary);margin-top:2px" id="debtEfSummary">—</div>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center">
+                    <div id="selectedCountRight" style="font-size:12px;color:var(--text-secondary);font-weight:600">0 selected</div>
+                    <button class="btn btn-danger" id="bulkDeleteBtnRight" onclick="deleteSelectedTransactions('right')" disabled style="padding:6px 12px;font-size:12px">🗑️ Delete</button>
+                </div>
+            </div>
+            <div style="overflow-y:auto;flex:1">
+                <table class="data-table" style="font-size:13px">
+                    <thead style="position:sticky;top:0;z-index:1">
+                        <tr>
+                            <th style="width:32px"><input type="checkbox" id="selectAllRight" onchange="toggleSelectAll('right',this)"></th>
+                            <th>Date</th><th>Type</th><th>Category</th><th>Provider</th><th>Action</th><th>Amount</th><th>Account</th><th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="debtEfTableBody"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -527,6 +584,7 @@ const DEFAULT_BUDGETS = {
 // INIT
 // ============================================================
 function initializeDashboard() {
+    applyStoredTheme();
     loadAll();
     setDefaultDate();
     updateCategoryFilterOptions();
@@ -858,6 +916,29 @@ function destroyAll() {
     charts = {};
 }
 
+// Returns Chart.js-compatible color options based on current theme
+function chartDefaults() {
+    const dark = document.body.classList.contains('dark-mode');
+    const textColor   = dark ? '#cbd5e1' : '#4a5568';
+    const gridColor   = dark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.06)';
+    const tickColor   = dark ? '#94a3b8' : '#6b7280';
+    const pointBorder = dark ? '#1e293b' : '#fff';
+    return { dark, textColor, gridColor, tickColor, pointBorder };
+}
+
+function sharedScaleOpts(axis='linear') {
+    const { gridColor, tickColor } = chartDefaults();
+    return {
+        grid: { color: gridColor },
+        ticks: { color: tickColor }
+    };
+}
+
+function sharedLegendOpts(position='top') {
+    const { textColor } = chartDefaults();
+    return { position, labels: { color: textColor, padding: 12, font: { size: 12 } } };
+}
+
 function showEmpty(canvasId, msg='No data yet', hint='Add transactions to see this chart') {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
@@ -931,8 +1012,8 @@ function chartIncomeExpenses(filtered) {
             {label:'Net',data:netData,borderColor:'rgb(139,92,246)',backgroundColor:'rgba(139,92,246,.1)',borderWidth:2,type:'line',fill:true,tension:.4}
         ]},
         options:{responsive:true,maintainAspectRatio:false,
-            plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fc(c.parsed.y)}}},
-            scales:{y:{beginAtZero:true,ticks:{callback:v=>fc(v)}}}}
+            plugins:{legend:sharedLegendOpts('top'),tooltip:{callbacks:{label:c=>c.dataset.label+': '+fc(c.parsed.y)}}},
+            scales:{y:{...sharedScaleOpts(),beginAtZero:true,ticks:{...sharedScaleOpts().ticks,callback:v=>fc(v)}},x:{...sharedScaleOpts()}}}
     });
 }
 
@@ -947,11 +1028,12 @@ function chartIncomeSources(filtered) {
     const labels = Object.keys(map).map(fmt);
     const data   = Object.values(map);
     const ctx = document.getElementById(id).getContext('2d');
+    const { textColor: tc2, pointBorder: pb2 } = chartDefaults();
     charts.incomeSources = new Chart(ctx,{
         type:'doughnut',
-        data:{labels,datasets:[{data,backgroundColor:['rgba(59,130,246,.8)','rgba(16,185,129,.8)','rgba(139,92,246,.8)','rgba(236,72,153,.8)','rgba(249,115,22,.8)','rgba(6,182,212,.8)','rgba(245,158,11,.8)','rgba(99,102,241,.8)'],borderWidth:2,borderColor:'#fff'}]},
+        data:{labels,datasets:[{data,backgroundColor:['rgba(59,130,246,.8)','rgba(16,185,129,.8)','rgba(139,92,246,.8)','rgba(236,72,153,.8)','rgba(249,115,22,.8)','rgba(6,182,212,.8)','rgba(245,158,11,.8)','rgba(99,102,241,.8)'],borderWidth:2,borderColor:pb2}]},
         options:{responsive:true,maintainAspectRatio:false,
-            plugins:{legend:{position:'bottom',labels:{padding:10,font:{size:11}}},
+            plugins:{legend:{position:'bottom',labels:{padding:10,font:{size:11},color:tc2}},
             tooltip:{callbacks:{label:c=>{const t=c.dataset.data.reduce((a,b)=>a+b,0);return c.label+': '+fc(c.parsed)+' ('+(c.parsed/t*100).toFixed(1)+'%)';}}}}
         }
     });
@@ -972,7 +1054,7 @@ function chartExpenseCategories(filtered) {
         data:{labels:sorted.map(([k])=>fmt(k)),datasets:[{label:'Expenses',data:sorted.map(([,v])=>v),backgroundColor:'rgba(239,68,68,.6)',borderColor:'rgb(239,68,68)',borderWidth:2}]},
         options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
             plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fc(c.parsed.x)}}},
-            scales:{x:{beginAtZero:true,ticks:{callback:v=>fc(v)}}}}
+            scales:{x:{...sharedScaleOpts(),beginAtZero:true,ticks:{...sharedScaleOpts().ticks,callback:v=>fc(v)}},y:{...sharedScaleOpts()}}}
     });
 }
 
@@ -999,8 +1081,9 @@ function chartBudgetGauge(filtered) {
         },
         plugins:[{id:'ct',beforeDraw(chart){
             const {width:w,height:h,ctx:c}=chart;
+            const {textColor} = chartDefaults();
             c.restore();c.font=`bold ${(h/90).toFixed(2)}em sans-serif`;
-            c.textBaseline='middle';c.fillStyle=over?'#ef4444':'#1a202c';
+            c.textBaseline='middle';c.fillStyle=over?'#ef4444':textColor;
             const txt=pct+'%'; const x=Math.round((w-c.measureText(txt).width)/2);
             c.fillText(txt,x,h/2);c.save();
         }}]
@@ -1015,10 +1098,11 @@ function chartDebtPie() {
     if (!nonZero.length) { showEmpty(id,'No debt recorded','Add debt transactions to track liabilities'); return; }
     clearEmpty(id);
     const ctx = document.getElementById(id).getContext('2d');
+    const { textColor: tc5, pointBorder: pb5 } = chartDefaults();
     charts.debtPie = new Chart(ctx,{
         type:'doughnut',
-        data:{labels:nonZero.map(([k])=>fmt(k)),datasets:[{data:nonZero.map(([,v])=>v),backgroundColor:['rgba(245,158,11,.8)','rgba(239,68,68,.8)','rgba(249,115,22,.8)','rgba(236,72,153,.8)','rgba(139,92,246,.8)','rgba(59,130,246,.8)'],borderWidth:2,borderColor:'#fff'}]},
-        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10}}},tooltip:{callbacks:{label:c=>c.label+': '+fc(c.parsed)}}}}
+        data:{labels:nonZero.map(([k])=>fmt(k)),datasets:[{data:nonZero.map(([,v])=>v),backgroundColor:['rgba(245,158,11,.8)','rgba(239,68,68,.8)','rgba(249,115,22,.8)','rgba(236,72,153,.8)','rgba(139,92,246,.8)','rgba(59,130,246,.8)'],borderWidth:2,borderColor:pb5}]},
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},color:tc5}},tooltip:{callbacks:{label:c=>c.label+': '+fc(c.parsed)}}}}
     });
 }
 
@@ -1045,8 +1129,8 @@ function chartSavingsRate() {
             {label:'Target (20%)',data:keys.map(()=>20),borderColor:'rgba(239,68,68,.5)',borderDash:[6,3],borderWidth:1.5,fill:false,pointRadius:0,spanGaps:true}
         ]},
         options:{responsive:true,maintainAspectRatio:false,
-            plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toFixed(1)+'%':'N/A')}}},
-            scales:{y:{ticks:{callback:v=>v+'%'}}}}
+            plugins:{legend:sharedLegendOpts('top'),tooltip:{callbacks:{label:c=>c.dataset.label+': '+(c.parsed.y!==null?c.parsed.y.toFixed(1)+'%':'N/A')}}},
+            scales:{y:{...sharedScaleOpts(),ticks:{...sharedScaleOpts().ticks,callback:v=>v+'%'}},x:{...sharedScaleOpts()}}}
     });
 }
 
@@ -1072,7 +1156,7 @@ function chartNetCashFlow() {
         data:{labels,datasets:[{label:'Cumulative Net',data,borderColor:'rgb(6,182,212)',backgroundColor:'rgba(6,182,212,.1)',borderWidth:3,fill:true,tension:.4}]},
         options:{responsive:true,maintainAspectRatio:false,
             plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'Net Cash Flow: '+fc(c.parsed.y)}}},
-            scales:{y:{ticks:{callback:v=>fc(v)}}}}
+            scales:{y:{...sharedScaleOpts(),ticks:{...sharedScaleOpts().ticks,callback:v=>fc(v)}},x:{...sharedScaleOpts()}}}
     });
 }
 
@@ -1102,7 +1186,7 @@ function chartGoals() {
         options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
             plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{const g=updatedGoals[c.dataIndex];return `${c.parsed.x.toFixed(1)}% — ${fc(g.current)} of ${fc(g.target)}`;
             }}}},
-            scales:{x:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%'}}}}
+            scales:{x:{...sharedScaleOpts(),beginAtZero:true,max:100,ticks:{...sharedScaleOpts().ticks,callback:v=>v+'%'}},y:{...sharedScaleOpts()}}}
     });
 }
 
@@ -1119,7 +1203,7 @@ function chartDebtBar() {
         data:{labels:nonZero.map(([k])=>fmt(k)),datasets:[{label:'Outstanding',data:nonZero.map(([,v])=>v),backgroundColor:'rgba(245,158,11,.6)',borderColor:'rgb(245,158,11)',borderWidth:2}]},
         options:{responsive:true,maintainAspectRatio:false,
             plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'Outstanding: '+fc(c.parsed.y)}}},
-            scales:{y:{beginAtZero:true,ticks:{callback:v=>fc(v)}}}}
+            scales:{y:{...sharedScaleOpts(),beginAtZero:true,ticks:{...sharedScaleOpts().ticks,callback:v=>fc(v)}},x:{...sharedScaleOpts()}}}
     });
 }
 
@@ -1145,9 +1229,9 @@ function chartBudgetActual(filtered) {
             {label:'Actual',data:actualData,backgroundColor:actualData.map((v,i)=>v>budgetData[i]?'rgba(239,68,68,.7)':'rgba(16,185,129,.7)'),borderColor:actualData.map((v,i)=>v>budgetData[i]?'rgb(239,68,68)':'rgb(16,185,129)'),borderWidth:2}
         ]},
         options:{responsive:true,maintainAspectRatio:false,
-            plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>{const diff=actualData[c.dataIndex]-budgetData[c.dataIndex];const sign=diff>0?'Over: ':'Under: ';return c.dataset.label+': '+fc(c.parsed.y)+(c.datasetIndex===1?' ('+sign+fc(Math.abs(diff))+')':'');
+            plugins:{legend:sharedLegendOpts('top'),tooltip:{callbacks:{label:c=>{const diff=actualData[c.dataIndex]-budgetData[c.dataIndex];const sign=diff>0?'Over: ':'Under: ';return c.dataset.label+': '+fc(c.parsed.y)+(c.datasetIndex===1?' ('+sign+fc(Math.abs(diff))+')':'');
             }}}},
-            scales:{y:{beginAtZero:true,ticks:{callback:v=>fc(v)}}}}
+            scales:{y:{...sharedScaleOpts(),beginAtZero:true,ticks:{...sharedScaleOpts().ticks,callback:v=>fc(v)}},x:{...sharedScaleOpts()}}}
     });
 }
 
@@ -1169,8 +1253,8 @@ function chartIncomeComparison() {
             {label:'Professional',data:professional,backgroundColor:'rgba(139,92,246,.6)',borderColor:'rgb(139,92,246)',borderWidth:2}
         ]},
         options:{responsive:true,maintainAspectRatio:false,
-            plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fc(c.parsed.y)}}},
-            scales:{y:{beginAtZero:true,ticks:{callback:v=>fc(v)}}}}
+            plugins:{legend:sharedLegendOpts('top'),tooltip:{callbacks:{label:c=>c.dataset.label+': '+fc(c.parsed.y)}}},
+            scales:{y:{...sharedScaleOpts(),beginAtZero:true,ticks:{...sharedScaleOpts().ticks,callback:v=>fc(v)}},x:{...sharedScaleOpts()}}}
     });
 }
 
@@ -1189,12 +1273,18 @@ function chartSpendingPattern(filtered) {
     if (data.every(v=>v===0)) { showEmpty(id,'No spending data','Add expense transactions to see weekly patterns'); return; }
     clearEmpty(id);
     const ctx = document.getElementById(id).getContext('2d');
+    const { gridColor: gc12, tickColor: tc12, pointBorder: pb12, textColor: txtc12 } = chartDefaults();
     charts.spendingPattern = new Chart(ctx,{
         type:'radar',
-        data:{labels:days,datasets:[{label:'Avg Spend',data,backgroundColor:'rgba(236,72,153,.2)',borderColor:'rgb(236,72,153)',borderWidth:2,pointBackgroundColor:'rgb(236,72,153)',pointBorderColor:'#fff'}]},
+        data:{labels:days,datasets:[{label:'Avg Spend',data,backgroundColor:'rgba(236,72,153,.25)',borderColor:'rgb(236,72,153)',borderWidth:2.5,pointBackgroundColor:'rgb(236,72,153)',pointBorderColor:pb12,pointRadius:5}]},
         options:{responsive:true,maintainAspectRatio:false,
             plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'Avg: '+fc(c.parsed.r)}}},
-            scales:{r:{beginAtZero:true,ticks:{callback:v=>fc(v)}}}}
+            scales:{r:{beginAtZero:true,
+                angleLines:{color:gc12},
+                grid:{color:gc12},
+                pointLabels:{color:txtc12,font:{size:12,weight:'600'}},
+                ticks:{color:tc12,backdropColor:'transparent',callback:v=>fc(v),stepSize:undefined}
+            }}}
     });
 }
 
@@ -1237,12 +1327,18 @@ function chartHealthScore(filtered) {
     if (scores.every(v=>v===0)) { showEmpty(id,'Not enough data','Add transactions to compute health score'); return; }
     clearEmpty(id);
     const ctx = document.getElementById(id).getContext('2d');
+    const { gridColor: gc13, tickColor: tc13, pointBorder: pb13, textColor: txtc13 } = chartDefaults();
     charts.healthScore = new Chart(ctx,{
         type:'radar',
-        data:{labels:['Savings Rate','Debt-to-Income','Emergency Fund','Budget Adherence','Income Diversity'],datasets:[{label:'Score',data:scores,backgroundColor:'rgba(16,185,129,.2)',borderColor:'rgb(16,185,129)',borderWidth:3,pointBackgroundColor:'rgb(16,185,129)',pointBorderColor:'#fff'}]},
+        data:{labels:['Savings Rate','Debt-to-Income','Emergency Fund','Budget Adherence','Income Diversity'],datasets:[{label:'Score',data:scores,backgroundColor:'rgba(16,185,129,.2)',borderColor:'rgb(16,185,129)',borderWidth:3,pointBackgroundColor:'rgb(16,185,129)',pointBorderColor:pb13,pointRadius:5}]},
         options:{responsive:true,maintainAspectRatio:false,
             plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.label+': '+c.parsed.r+'/100'}}},
-            scales:{r:{beginAtZero:true,max:100,ticks:{stepSize:20}}}}
+            scales:{r:{beginAtZero:true,max:100,
+                angleLines:{color:gc13},
+                grid:{color:gc13},
+                pointLabels:{color:txtc13,font:{size:11,weight:'600'}},
+                ticks:{stepSize:20,color:tc13,backdropColor:'transparent'}
+            }}}
     });
 }
 
@@ -1380,11 +1476,33 @@ function changeView(view) {
 // ============================================================
 // CATEGORY OPTIONS
 // ============================================================
+// ============================================================
+// DARK / LIGHT THEME TOGGLE
+// ============================================================
+function toggleTheme() {
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('fo_theme', isDark ? 'dark' : 'light');
+    document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
+    document.getElementById('themeLabel').textContent = isDark ? 'Light' : 'Dark';
+    // Re-draw all charts so colors update instantly
+    createAllCharts();
+}
+
+function applyStoredTheme() {
+    const t = localStorage.getItem('fo_theme');
+    if (t === 'dark') {
+        document.body.classList.add('dark-mode');
+        document.getElementById('themeIcon').textContent = '☀️';
+        document.getElementById('themeLabel').textContent = 'Light';
+    }
+}
+
 function updateCategoryOptions() {
     const type = document.getElementById('transactionType').value;
     const catSel = document.getElementById('transactionCategory');
     const actGrp = document.getElementById('transactionActionGroup');
     const actSel = document.getElementById('transactionAction');
+    const provGrp = document.getElementById('providerGroup');
     catSel.innerHTML = '<option value="">Select Category</option>';
     catSel.disabled = false;
     if (type && CATEGORIES[type]) {
@@ -1402,6 +1520,8 @@ function updateCategoryOptions() {
         actGrp.style.display='none';
         actSel.innerHTML='<option value="">Select Action</option>';
     }
+    // Show provider field only for debt/loan
+    if (provGrp) provGrp.style.display = (type==='debt') ? '' : 'none';
 }
 
 function updateCategoryFilterOptions() {
@@ -1421,6 +1541,8 @@ function openDataEntryModal(tid=null) {
     document.getElementById('transactionId').value='';
     document.getElementById('transactionDate').value=new Date().toISOString().split('T')[0];
     document.getElementById('modalTitle').textContent='Add New Transaction';
+    const provInpR = document.getElementById('transactionProvider');
+    if(provInpR) provInpR.value='';
     updateCategoryOptions();
     if (tid) {
         const t = transactions.find(x=>x.id===tid);
@@ -1436,6 +1558,8 @@ function openDataEntryModal(tid=null) {
             document.getElementById('transactionAccount').value=t.account;
             document.getElementById('transactionDescription').value=t.description||'';
             if (t.action) document.getElementById('transactionAction').value=t.action;
+            const provInp = document.getElementById('transactionProvider');
+            if (provInp) provInp.value = t.provider||'';
         }
     }
     document.getElementById('dataEntryModal').style.display='block';
@@ -1454,11 +1578,12 @@ function saveTransaction() {
     const desc = document.getElementById('transactionDescription').value;
     const needsAction = type==='debt'||type==='emergency';
     const action = needsAction ? document.getElementById('transactionAction').value : null;
+    const provider = (type==='debt') ? (document.getElementById('transactionProvider').value.trim()||'') : '';
 
     if (!date||!type||!cat||!ft||!amt||!acc) { alert('Please fill in all required fields.'); return; }
     if (needsAction && !action) { alert('Please select an action.'); return; }
 
-    const tx = {id:id?parseInt(id):Date.now(),date,type,category:cat,financeType:ft,amount:amt,account:acc,description:desc,action};
+    const tx = {id:id?parseInt(id):Date.now(),date,type,category:cat,financeType:ft,amount:amt,account:acc,description:desc,action,provider};
     if (id) {
         const idx = transactions.findIndex(t=>t.id===parseInt(id));
         if (idx!==-1) { transactions[idx]=tx; showSuccessMessage('Transaction updated!'); }
@@ -1490,50 +1615,103 @@ function closeTransactionsPage() { document.getElementById('transactionsPage').s
 function isTransactionsPageOpen() { return document.getElementById('transactionsPage').style.display==='block'; }
 
 function renderTransactionsTable() {
-    const tbody = document.getElementById('transactionsTableBody');
-    tbody.innerHTML = '';
     const typeColors = {income:'#10b981',expense:'#ef4444',debt:'#f59e0b',emergency:'#06b6d4'};
     const typeLabels = {income:'INCOME',expense:'EXPENSE',debt:'DEBT',emergency:'EMERGENCY'};
-    if (!transactions.length) {
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--text-secondary);padding:30px">No transactions yet. Click "+ Add Entry" to get started.</td></tr>`;
-    } else {
-        [...transactions].sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(t=>{
-            const tr=document.createElement('tr');
-            tr.innerHTML=`
-                <td><input type="checkbox" class="transaction-checkbox" value="${t.id}" onchange="updateBulkDeleteState()"></td>
-                <td>${new Date(t.date).toLocaleDateString()}</td>
-                <td><span style="color:${typeColors[t.type]||'#4a5568'};font-weight:600">${typeLabels[t.type]||t.type.toUpperCase()}</span></td>
-                <td>${fmt(t.category)}</td>
-                <td style="font-weight:600">${fc(t.amount)}</td>
-                <td>${t.account}</td>
-                <td>${t.financeType}</td>
-                <td style="color:var(--text-secondary);font-size:12px">${t.description||'—'}</td>
-                <td class="actions">
-                    <button class="btn btn-secondary" onclick="openDataEntryModal(${t.id})">Edit</button>
-                    <button class="btn btn-danger" onclick="deleteTransaction(${t.id})">Del</button>
-                </td>`;
-            tbody.appendChild(tr);
-        });
+    const sorted = [...transactions].sort((a,b)=>new Date(b.date)-new Date(a.date));
+
+    // LEFT: income + expense
+    const leftTx = sorted.filter(t=>t.type==='income'||t.type==='expense');
+    const leftTbody = document.getElementById('incExpTableBody');
+    if (leftTbody) {
+        leftTbody.innerHTML = '';
+        if (!leftTx.length) {
+            leftTbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-secondary);padding:30px">No income or expense entries yet.</td></tr>`;
+        } else {
+            leftTx.forEach(t=>{
+                const tr=document.createElement('tr');
+                tr.innerHTML=`
+                    <td><input type="checkbox" class="tx-cb-left" value="${t.id}" onchange="updateBulkDeleteState('left')"></td>
+                    <td>${new Date(t.date).toLocaleDateString()}</td>
+                    <td><span style="color:${typeColors[t.type]};font-weight:600">${typeLabels[t.type]}</span></td>
+                    <td>${fmt(t.category)}</td>
+                    <td style="font-weight:600">${fc(t.amount)}</td>
+                    <td>${t.account}</td>
+                    <td class="actions">
+                        <button class="btn btn-secondary" onclick="openDataEntryModal(${t.id})" style="padding:4px 8px;font-size:11px">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteTransaction(${t.id})" style="padding:4px 8px;font-size:11px">Del</button>
+                    </td>`;
+                leftTbody.appendChild(tr);
+            });
+        }
+        // Summary
+        const totalInc = leftTx.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+        const totalExp = leftTx.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+        const sumEl = document.getElementById('incExpSummary');
+        if(sumEl) sumEl.innerHTML = `<span style="color:#10b981">+${fc(totalInc)}</span> income &nbsp;|&nbsp; <span style="color:#ef4444">-${fc(totalExp)}</span> expenses`;
     }
-    const sa = document.getElementById('selectAllTransactions');
-    if (sa) sa.checked=false;
-    updateBulkDeleteState();
+
+    // RIGHT: debt + emergency
+    const rightTx = sorted.filter(t=>t.type==='debt'||t.type==='emergency');
+    const rightTbody = document.getElementById('debtEfTableBody');
+    if (rightTbody) {
+        rightTbody.innerHTML = '';
+        if (!rightTx.length) {
+            rightTbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--text-secondary);padding:30px">No debt or emergency fund entries yet.</td></tr>`;
+        } else {
+            rightTx.forEach(t=>{
+                const actionLabel = t.action ? t.action.replace(/([A-Z])/g,' $1').replace(/^./,s=>s.toUpperCase()) : '—';
+                const tr=document.createElement('tr');
+                tr.innerHTML=`
+                    <td><input type="checkbox" class="tx-cb-right" value="${t.id}" onchange="updateBulkDeleteState('right')"></td>
+                    <td>${new Date(t.date).toLocaleDateString()}</td>
+                    <td><span style="color:${typeColors[t.type]};font-weight:600">${typeLabels[t.type]}</span></td>
+                    <td>${fmt(t.category)}</td>
+                    <td style="color:var(--text-secondary);font-size:12px">${t.provider||'—'}</td>
+                    <td><span style="font-size:11px;padding:2px 7px;border-radius:10px;background:${t.type==='debt'?'#fef3c7':'#e0f2fe'};color:${t.type==='debt'?'#92400e':'#0369a1'}">${actionLabel}</span></td>
+                    <td style="font-weight:600">${fc(t.amount)}</td>
+                    <td>${t.account}</td>
+                    <td class="actions">
+                        <button class="btn btn-secondary" onclick="openDataEntryModal(${t.id})" style="padding:4px 8px;font-size:11px">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteTransaction(${t.id})" style="padding:4px 8px;font-size:11px">Del</button>
+                    </td>`;
+                rightTbody.appendChild(tr);
+            });
+        }
+        const totalDebt = Object.values(getDebtBalance()).reduce((s,v)=>s+v,0);
+        const efBal = getEmergencyFundBalance();
+        const sumEl = document.getElementById('debtEfSummary');
+        if(sumEl) sumEl.innerHTML = `<span style="color:#f59e0b">Debt: ${fc(totalDebt)}</span> &nbsp;|&nbsp; <span style="color:#06b6d4">EF: ${fc(efBal)}</span>`;
+    }
+
+    document.querySelectorAll('#selectAllLeft,#selectAllRight').forEach(cb=>{ if(cb) cb.checked=false; });
+    updateBulkDeleteState('left');
+    updateBulkDeleteState('right');
 }
 
-function toggleSelectAllTransactions(cb) { document.querySelectorAll('.transaction-checkbox').forEach(c=>c.checked=cb.checked); updateBulkDeleteState(); }
-function updateBulkDeleteState() {
-    const all=document.querySelectorAll('.transaction-checkbox');
-    const chk=document.querySelectorAll('.transaction-checkbox:checked');
-    const btn=document.getElementById('bulkDeleteBtn');
-    const lbl=document.getElementById('selectedCount');
-    const sa=document.getElementById('selectAllTransactions');
+function toggleSelectAll(side, cb) {
+    const cls = side==='left' ? '.tx-cb-left' : '.tx-cb-right';
+    document.querySelectorAll(cls).forEach(c=>c.checked=cb.checked);
+    updateBulkDeleteState(side);
+}
+
+function updateBulkDeleteState(side) {
+    const cls  = side==='left' ? '.tx-cb-left' : '.tx-cb-right';
+    const saId = side==='left' ? 'selectAllLeft' : 'selectAllRight';
+    const btnId= side==='left' ? 'bulkDeleteBtnLeft' : 'bulkDeleteBtnRight';
+    const lblId= side==='left' ? 'selectedCountLeft' : 'selectedCountRight';
+    const all=document.querySelectorAll(cls);
+    const chk=document.querySelectorAll(cls+':checked');
+    const btn=document.getElementById(btnId);
+    const lbl=document.getElementById(lblId);
+    const sa=document.getElementById(saId);
     if(btn) btn.disabled=chk.length===0;
     if(lbl) lbl.textContent=chk.length+' selected';
     if(sa) sa.checked=all.length>0&&chk.length===all.length;
 }
 
-function deleteSelectedTransactions() {
-    const ids=[...document.querySelectorAll('.transaction-checkbox:checked')].map(c=>parseInt(c.value));
+function deleteSelectedTransactions(side) {
+    const cls = side==='left' ? '.tx-cb-left' : '.tx-cb-right';
+    const ids=[...document.querySelectorAll(cls+':checked')].map(c=>parseInt(c.value));
     if(!ids.length) return;
     if(!confirm(`Delete ${ids.length} transaction(s)?`)) return;
     transactions=transactions.filter(t=>!ids.includes(t.id));
@@ -1796,8 +1974,8 @@ async function exportToPDF() {
         pdf.setFontSize(14); pdf.setFont(undefined,'bold'); pdf.setTextColor(30,30,30);
         pdf.text('All Transactions ('+transactions.length+')', mx, y); y+=10;
 
-        const colX = [mx, mx+26, mx+60, mx+100, mx+132, mx+162];
-        const headers = ['Date','Type','Category','Amount','Account','Finance'];
+        const colX = [mx, mx+26, mx+55, mx+90, mx+120, mx+148, mx+170];
+        const headers = ['Date','Type','Category','Amount','Account','Provider','Finance'];
 
         function drawTableHeader() {
             pdf.setFontSize(8); pdf.setFont(undefined,'bold'); pdf.setTextColor(80,80,80);
@@ -1816,7 +1994,8 @@ async function exportToPDF() {
             pdf.text(safe(fmt(t.category)),                 colX[2], y);
             pdf.text(safe(fc(t.amount)),                    colX[3], y);
             pdf.text(t.account,                             colX[4], y);
-            pdf.text(t.financeType,                         colX[5], y);
+            pdf.text(safe(t.provider||''),                  colX[5], y);
+            pdf.text(t.financeType,                         colX[6], y);
             y+=5;
         });
 
