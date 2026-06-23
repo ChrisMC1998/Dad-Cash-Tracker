@@ -135,6 +135,20 @@
         ::-webkit-scrollbar-track{background:#f1f5f9;border-radius:4px}
         ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
         ::-webkit-scrollbar-thumb:hover{background:#94a3b8}
+
+        /* ── Save indicator ── */
+        .save-indicator{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#4a5568;background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:8px;padding:6px 12px;transition:all .4s;white-space:nowrap;min-width:130px;justify-content:center}
+        .save-indicator .dot{width:8px;height:8px;border-radius:50%;background:#10b981;flex-shrink:0;transition:background .3s}
+        .save-indicator.saving{background:#fffbeb;border-color:#fde68a;color:#92400e}
+        .save-indicator.saving .dot{background:#f59e0b;animation:pulse .6s infinite}
+        .save-indicator.error{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+        .save-indicator.error .dot{background:#ef4444}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+        .drive-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border:2px solid #e2e8f0;border-radius:8px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:all .3s;color:#4a5568}
+        .drive-btn:hover{border-color:#667eea;color:#667eea}
+        .drive-btn.connected{border-color:#10b981;background:#f0fdf4;color:#065f46}
+        .drive-btn.connected .drive-dot{background:#10b981}
+        .drive-dot{width:7px;height:7px;border-radius:50%;background:#cbd5e1;transition:background .3s}
     </style>
 </head>
 <body>
@@ -145,6 +159,16 @@
     <div class="header">
         <h1><div class="header-icon">💰</div>FinanceOS</h1>
         <div class="header-actions">
+            <!-- Save indicator -->
+            <div class="save-indicator" id="saveIndicator">
+                <span class="dot"></span>
+                <span id="saveIndicatorText">Saved</span>
+            </div>
+            <!-- JSON Drive connect -->
+            <button class="drive-btn" id="driveBtn" onclick="toggleJsonDrive()" title="Connect a local JSON file for auto-save">
+                <span class="drive-dot" id="driveDot"></span>
+                <span id="driveBtnText">JSON Drive</span>
+            </button>
             <div class="currency-selector">
                 <span>💱</span>
                 <select id="currencySelect" onchange="updateCurrency()">
@@ -507,6 +531,13 @@ function initializeDashboard() {
     setDefaultDate();
     updateCategoryFilterOptions();
     updateDashboard();
+    // Show initial save state
+    const count = transactions.length;
+    if (count > 0) {
+        setSaveIndicator('', '● Loaded (' + count + ' entries)');
+    } else {
+        setSaveIndicator('', '● Ready');
+    }
 }
 
 function loadAll() {
@@ -532,10 +563,128 @@ function loadAll() {
     }
 }
 
+// ============================================================
+// SAVE INDICATOR
+// ============================================================
+let _saveTimer = null;
+
+function setSaveIndicator(state, text) {
+    const el  = document.getElementById('saveIndicator');
+    const txt = document.getElementById('saveIndicatorText');
+    if (!el) return;
+    el.className = 'save-indicator' + (state ? ' '+state : '');
+    txt.textContent = text;
+}
+
+function flashSaved(label) {
+    label = label || 'Saved';
+    const now = new Date();
+    const t = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    setSaveIndicator('', '● ' + label + ' ' + t);
+}
+
+// ============================================================
+// JSON DRIVE (File System Access API)
+// ============================================================
+let driveFileHandle = null;   // FileSystemFileHandle when connected
+let driveWriting    = false;
+
+async function toggleJsonDrive() {
+    if (driveFileHandle) {
+        // Disconnect
+        driveFileHandle = null;
+        updateDriveUI(false);
+        setSaveIndicator('', '● Saved');
+        showSuccessMessage('JSON Drive disconnected.');
+        return;
+    }
+    // Connect — let user pick or create a JSON file
+    if (!('showSaveFilePicker' in window)) {
+        alert('Your browser does not support the File System Access API.\nTry Chrome or Edge desktop for JSON Drive.');
+        return;
+    }
+    try {
+        const handle = await window.showSaveFilePicker({
+            suggestedName: 'financeos-drive.json',
+            types: [{ description: 'JSON File', accept: {'application/json': ['.json']} }]
+        });
+        driveFileHandle = handle;
+        updateDriveUI(true);
+        // Immediately write current data
+        await writeToDrive();
+        showSuccessMessage('JSON Drive connected! Auto-saving to ' + handle.name);
+    } catch(e) {
+        if (e.name !== 'AbortError') console.error('JSON Drive error:', e);
+    }
+}
+
+function updateDriveUI(connected) {
+    const btn  = document.getElementById('driveBtn');
+    const dot  = document.getElementById('driveDot');
+    const text = document.getElementById('driveBtnText');
+    if (!btn) return;
+    if (connected) {
+        btn.classList.add('connected');
+        dot.style.background = '#10b981';
+        text.textContent = '⏏ Disconnect Drive';
+    } else {
+        btn.classList.remove('connected');
+        dot.style.background = '#cbd5e1';
+        text.textContent = 'JSON Drive';
+    }
+}
+
+async function writeToDrive() {
+    if (!driveFileHandle || driveWriting) return;
+    driveWriting = true;
+    setSaveIndicator('saving', '⏳ Saving...');
+    try {
+        const writable = await driveFileHandle.createWritable();
+        const payload = buildBackupPayload();
+        await writable.write(JSON.stringify(payload, null, 2));
+        await writable.close();
+        flashSaved('Drive saved');
+    } catch(e) {
+        console.error('Drive write failed:', e);
+        setSaveIndicator('error', '✕ Drive error');
+    } finally {
+        driveWriting = false;
+    }
+}
+
+// ============================================================
+// BACKUP PAYLOAD (single source of truth for both Backup & Drive)
+// ============================================================
+function buildBackupPayload() {
+    return {
+        version: 3,
+        exportedAt: new Date().toISOString(),
+        currency: document.getElementById('currencySelect')?.value || 'INR',
+        transactions,   // includes income, expense, debt, emergency — all types
+        budgets,
+        goals
+    };
+}
+
+// ============================================================
+// SAVE ALL (localStorage + Drive + indicator)
+// ============================================================
 function saveAll() {
+    // 1. localStorage
     localStorage.setItem(STORAGE_KEYS.transactions, JSON.stringify(transactions));
     localStorage.setItem(STORAGE_KEYS.budgets, JSON.stringify(budgets));
     localStorage.setItem(STORAGE_KEYS.goals, JSON.stringify(goals));
+
+    // 2. Save indicator
+    const now = new Date();
+    const t = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    setSaveIndicator('', '● Saved ' + t);
+
+    // 3. Drive (debounced 800ms)
+    if (driveFileHandle) {
+        clearTimeout(_saveTimer);
+        _saveTimer = setTimeout(writeToDrive, 800);
+    }
 }
 
 function getDefaultGoals() {
@@ -1481,13 +1630,15 @@ function resetAllData() {
 // BACKUP / RESTORE
 // ============================================================
 function downloadBackup() {
-    const backup = {version:2,exportedAt:new Date().toISOString(),currency:document.getElementById('currencySelect').value,transactions,budgets,goals};
+    // buildBackupPayload captures ALL data: transactions (all types), budgets, goals, currency
+    const backup = buildBackupPayload();
     const blob = new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href=url; a.download='financeos-backup-'+new Date().toISOString().split('T')[0]+'.json';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    showSuccessMessage('Backup downloaded!');
+    URL.revokeObjectURL(url);
+    showSuccessMessage('Full backup downloaded! ('+transactions.length+' transactions, '+Object.keys(budgets).length+' budgets, '+goals.length+' goals)');
 }
 
 function handleRestoreBackup(e) {
